@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_commerce_v2/features/auth/presentation/pages/home_page.dart';
+import 'package:food_commerce_v2/features/menu/presentation/pages/home_page.dart';
 import '../bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {

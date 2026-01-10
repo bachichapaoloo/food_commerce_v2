@@ -1,5 +1,12 @@
 import 'package:food_commerce_v2/features/auth/domain/usecases/get_current_user.dart';
 import 'package:food_commerce_v2/features/auth/domain/usecases/logout_user.dart';
+import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:food_commerce_v2/features/menu/data/datasources/menu_remote_data_source.dart';
+import 'package:food_commerce_v2/features/menu/data/repositories/menu_repository_impl.dart';
+import 'package:food_commerce_v2/features/menu/domain/repositories/menu_repository.dart';
+import 'package:food_commerce_v2/features/menu/domain/usecases/get_menu.dart';
+import 'package:food_commerce_v2/features/menu/presentation/bloc/menu_bloc.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,6 +35,16 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RegisterUser(sl()));
   sl.registerLazySingleton(() => GetCurrentUser(sl()));
   sl.registerLazySingleton(() => LogoutUser(sl()));
+
+  // Feature - Menu
+  sl.registerFactory(() => MenuBloc(getCategories: sl(), getProducts: sl()));
+  sl.registerLazySingleton(() => GetCategories(sl()));
+  sl.registerLazySingleton(() => GetProducts(sl()));
+  sl.registerLazySingleton<MenuRepository>(() => MenuRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<MenuRemoteDataSource>(() => MenuRemoteDataSourceImpl(supabaseClient: sl()));
+
+  // Feature - Cart
+  sl.registerFactory(() => CartBloc());
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl()));
