@@ -1,7 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../../core/error/exceptions.dart';
 import '../models/product_model.dart';
-import '../../../../../core/constants/constants.dart'; // Ensure you have table names here
 
 abstract class MenuRemoteDataSource {
   Future<List<CategoryModel>> getCategories();

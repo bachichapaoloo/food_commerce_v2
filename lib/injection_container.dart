@@ -6,6 +6,11 @@ import 'package:food_commerce_v2/features/menu/data/repositories/menu_repository
 import 'package:food_commerce_v2/features/menu/domain/repositories/menu_repository.dart';
 import 'package:food_commerce_v2/features/menu/domain/usecases/get_menu.dart';
 import 'package:food_commerce_v2/features/menu/presentation/bloc/menu_bloc.dart';
+import 'package:food_commerce_v2/features/order/data/datasources/order_remote_data_source.dart';
+import 'package:food_commerce_v2/features/order/data/repositories/order_repository_impl.dart';
+import 'package:food_commerce_v2/features/order/domain/repositories/order_repository.dart';
+import 'package:food_commerce_v2/features/order/domain/usecases/place_order.dart';
+import 'package:food_commerce_v2/features/order/presentation/bloc/order_bloc.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -45,6 +50,12 @@ Future<void> init() async {
 
   // Feature - Cart
   sl.registerFactory(() => CartBloc());
+
+  // Featuer - Order
+  sl.registerFactory(() => OrderBloc(placeOrder: sl()));
+  sl.registerLazySingleton(() => PlaceOrder(sl()));
+  sl.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<OrderRemoteDataSource>(() => OrderRemoteDataSourceImpl(supabaseClient: sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl()));

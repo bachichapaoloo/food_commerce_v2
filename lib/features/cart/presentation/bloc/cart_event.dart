@@ -13,6 +13,11 @@ class AddItemToCart extends CartEvent {
   List<Object> get props => [product];
 }
 
+class CheckoutRequested extends CartEvent {
+  final String userId;
+  const CheckoutRequested(this.userId);
+}
+
 class RemoveItemFromCart extends CartEvent {
   final ProductEntity product;
   const RemoveItemFromCart(this.product);

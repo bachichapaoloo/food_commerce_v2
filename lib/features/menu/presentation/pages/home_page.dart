@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_commerce_v2/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:food_commerce_v2/features/auth/presentation/pages/login_page.dart';
 import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:food_commerce_v2/features/cart/presentation/pages/cart_page.dart';
 import '../../../../../../../injection_container.dart'; // To access 'sl'
 import '../bloc/menu_bloc.dart';
 import '../bloc/menu_event.dart';
@@ -119,8 +120,8 @@ class _HomeView extends StatelessWidget {
                                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text("${product.name} added to cart!"),
-                                        duration: const Duration(seconds: 1),
+                                        content: Text("${product.name} added!"),
+                                        duration: const Duration(milliseconds: 600),
                                       ),
                                     );
                                   },
@@ -142,12 +143,15 @@ class _HomeView extends StatelessWidget {
           if (state.items.isEmpty) return const SizedBox.shrink();
 
           return FloatingActionButton.extended(
+            backgroundColor: Colors.orange,
+            icon: const Icon(Icons.shopping_basket, color: Colors.white),
+            label: Text(
+              "${state.totalItems} Items • \$${state.totalBill.toStringAsFixed(2)}",
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
             onPressed: () {
-              // We will build the CartPage next!
-              print("Go to Cart");
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CartPage()));
             },
-            label: Text("${state.totalItems} Items - \$${state.totalBill.toStringAsFixed(2)}"),
-            icon: const Icon(Icons.shopping_basket),
           );
         },
       ),
