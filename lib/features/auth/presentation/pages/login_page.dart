@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_commerce_v2/features/menu/presentation/pages/home_page.dart';
+import 'package:food_commerce_v2/features/menu/presentation/pages/menu_page.dart';
+import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
 import '../bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -41,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
             ).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: Colors.red));
           } else if (state is AuthAuthenticated) {
             // Navigate to Home on success
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MainWrapperPage()));
           }
         },
         builder: (context, state) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
 import '../../../../injection_container.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../order/presentation/bloc/order_bloc.dart';
@@ -41,6 +42,7 @@ class _CartView extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(ctx).pop(); // close dialog
                     Navigator.of(context).pop(); // leave cart
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const MainWrapperPage()));
                   },
                   child: const Text("Awesome"),
                 ),

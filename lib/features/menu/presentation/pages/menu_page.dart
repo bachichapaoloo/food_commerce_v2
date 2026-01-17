@@ -9,8 +9,8 @@ import '../bloc/menu_bloc.dart';
 import '../bloc/menu_event.dart';
 import '../bloc/menu_state.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class MenuPage extends StatelessWidget {
+  const MenuPage({super.key});
 
   @override
   Widget build(BuildContext context) {
