@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_commerce_v2/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
 import 'package:food_commerce_v2/features/order/presentation/bloc/order_bloc.dart';
+import 'package:food_commerce_v2/features/order/presentation/pages/order_details_page.dart';
 import 'package:food_commerce_v2/features/profile/presentation/pages/profile_page.dart';
 import 'package:intl/intl.dart';
 
@@ -97,11 +98,20 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                     children: [
                       if (order.items != null)
                         ...order.items!.map(
-                          (item) => ListTile(
-                            visualDensity: VisualDensity.compact,
-                            leading: Text("${item.quantity}x", style: const TextStyle(fontWeight: FontWeight.bold)),
-                            title: Text(item.product.name), // Snapshot Name
-                            trailing: Text("\$${item.product.price}"), // Snapshot Price
+                          (item) => GestureDetector(
+                            child: ListTile(
+                              visualDensity: VisualDensity.compact,
+                              leading: Text("${item.quantity}x", style: const TextStyle(fontWeight: FontWeight.bold)),
+                              title: Text(item.product.name), // Snapshot Name
+                              trailing: Text("\$${item.product.price}"), // Snapshot Price
+                            ),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => OrderDetailsPage(order: order), // Pass the object here!
+                                ),
+                              );
+                            },
                           ),
                         ),
                     ],
