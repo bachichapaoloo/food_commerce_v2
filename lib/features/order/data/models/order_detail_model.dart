@@ -60,11 +60,11 @@ class OrderDetailModel {
 
   factory OrderDetailModel.fromMap(Map<String, dynamic> map) {
     return OrderDetailModel(
-      orderId: map['order_id'] as int,
-      productId: map['product_id'] as int,
+      orderId: map['order_id'] as int, // snake_case from DB
+      productId: map['product_id'] as int, // snake_case from DB
       name: map['name'] ?? '',
-      price: (map['price_at_purchase'] as num).toDouble(),
-      quantity: map['qty'] as int,
+      price: (map['price_at_purchase'] as num).toDouble(), // DB column name
+      quantity: map['qty'] as int, // or 'quantity' depending on your table
       specialInstructions: map['special_instructions'] ?? '',
       modifiers: [],
       status: map['status'] ?? 'pending',
@@ -75,35 +75,4 @@ class OrderDetailModel {
 
   factory OrderDetailModel.fromJson(String source) =>
       OrderDetailModel.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() {
-    return 'OrderDetailModel(orderId: $orderId, productId: $productId, name: $name, price: $price, quantity: $quantity, specialInstructions: $specialInstructions, modifiers: $modifiers, status: $status)';
-  }
-
-  @override
-  bool operator ==(covariant OrderDetailModel other) {
-    if (identical(this, other)) return true;
-
-    return other.orderId == orderId &&
-        other.productId == productId &&
-        other.name == name &&
-        other.price == price &&
-        other.quantity == quantity &&
-        other.specialInstructions == specialInstructions &&
-        listEquals(other.modifiers, modifiers) &&
-        other.status == status;
-  }
-
-  @override
-  int get hashCode {
-    return orderId.hashCode ^
-        productId.hashCode ^
-        name.hashCode ^
-        price.hashCode ^
-        quantity.hashCode ^
-        specialInstructions.hashCode ^
-        modifiers.hashCode ^
-        status.hashCode;
-  }
 }

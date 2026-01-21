@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:food_commerce_v2/features/menu/presentation/bloc/menu_bloc.dart';
 import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
+import 'package:food_commerce_v2/features/order/presentation/bloc/order_bloc.dart';
 import 'injection_container.dart' as di;
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart'; // We will create this next
@@ -16,6 +17,7 @@ void main() async {
         BlocProvider(create: (_) => di.sl<AuthBloc>()),
         BlocProvider(create: (_) => di.sl<CartBloc>()),
         BlocProvider(create: (_) => di.sl<MenuBloc>()),
+        BlocProvider(create: (_) => di.sl<OrderBloc>()),
       ],
       child: const MyApp(),
     ),

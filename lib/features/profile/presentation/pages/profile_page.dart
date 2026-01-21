@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_commerce_v2/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:food_commerce_v2/features/order/presentation/pages/order_history_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -31,7 +32,7 @@ class ProfilePage extends StatelessWidget {
             title: const Text("Order History"),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              // Navigate to Order History Page (Future Feature)
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const OrderHistoryPage()));
             },
           ),
           ListTile(

@@ -9,6 +9,7 @@ import 'package:food_commerce_v2/features/menu/presentation/bloc/menu_bloc.dart'
 import 'package:food_commerce_v2/features/order/data/datasources/order_remote_data_source.dart';
 import 'package:food_commerce_v2/features/order/data/repositories/order_repository_impl.dart';
 import 'package:food_commerce_v2/features/order/domain/repositories/order_repository.dart';
+import 'package:food_commerce_v2/features/order/domain/usecases/get_orders.dart';
 import 'package:food_commerce_v2/features/order/domain/usecases/place_order.dart';
 import 'package:food_commerce_v2/features/order/presentation/bloc/order_bloc.dart';
 
@@ -52,8 +53,9 @@ Future<void> init() async {
   sl.registerFactory(() => CartBloc());
 
   // Featuer - Order
-  sl.registerFactory(() => OrderBloc(placeOrder: sl()));
+  sl.registerFactory(() => OrderBloc(placeOrder: sl(), getOrders: sl()));
   sl.registerLazySingleton(() => PlaceOrder(sl()));
+  sl.registerLazySingleton(() => GetOrders(sl()));
   sl.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<OrderRemoteDataSource>(() => OrderRemoteDataSourceImpl(supabaseClient: sl()));
 

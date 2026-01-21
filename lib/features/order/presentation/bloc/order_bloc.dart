@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:food_commerce_v2/features/order/domain/usecases/get_orders.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../domain/usecases/place_order.dart'; // Import your UseCase
@@ -9,9 +10,11 @@ part 'order_state.dart';
 
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
   final PlaceOrder placeOrder;
+  final GetOrders getOrders;
 
-  OrderBloc({required this.placeOrder}) : super(OrderInitial()) {
+  OrderBloc({required this.placeOrder, required this.getOrders}) : super(OrderInitial()) {
     on<SubmitOrderEvent>(_onSubmitOrder);
+    on<FetchOrderHistory>(_onFetchOrderHistory);
   }
 
   Future<void> _onSubmitOrder(SubmitOrderEvent event, Emitter<OrderState> emit) async {
@@ -29,5 +32,13 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       (failure) => emit(OrderFailure(failure.message)), // Error
       (order) => emit(OrderSuccess(order)), // Success
     );
+  }
+
+  Future<void> _onFetchOrderHistory(FetchOrderHistory event, Emitter<OrderState> emit) async {
+    // Implementation for fetching order history can be added here
+    emit(OrderHistoryLoaded([]));
+
+    final result = await getOrders(GetOrdersParams(userId: event.userId));
+    result.fold((failure) => emit(OrderFailure(failure.message)), (orders) => emit(OrderHistoryLoaded(orders)));
   }
 }

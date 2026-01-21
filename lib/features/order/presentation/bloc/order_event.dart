@@ -17,3 +17,12 @@ class SubmitOrderEvent extends OrderEvent {
   @override
   List<Object> get props => [userId, cartItems, totalBill];
 }
+
+class FetchOrderHistory extends OrderEvent {
+  final String userId;
+
+  const FetchOrderHistory({required this.userId});
+
+  @override
+  List<Object> get props => [userId];
+}

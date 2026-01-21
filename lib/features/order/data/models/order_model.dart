@@ -14,7 +14,7 @@ class OrderModel {
       id: json['id'],
       totalPrice: (json['total_price'] as num).toDouble(),
       items: json['order_details'] != null
-          ? (json['order_details'] as List).map((item) => OrderDetailModel.fromJson(item)).toList()
+          ? (json['order_details'] as List).map((item) => OrderDetailModel.fromMap(item)).toList()
           : null,
       status: json['status'],
       createdAt: DateTime.parse(json['created_at']),
