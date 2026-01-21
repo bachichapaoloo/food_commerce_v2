@@ -9,4 +9,6 @@ abstract class OrderRepository {
     required List<CartItemEntity> items,
     required double total,
   });
+
+  Future<Either<Failure, List<OrderEntity>>> getOrders({required String userId});
 }

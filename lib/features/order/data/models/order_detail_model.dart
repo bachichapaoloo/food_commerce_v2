@@ -60,14 +60,14 @@ class OrderDetailModel {
 
   factory OrderDetailModel.fromMap(Map<String, dynamic> map) {
     return OrderDetailModel(
-      orderId: map['orderId'] as int,
-      productId: map['productId'] as int,
-      name: map['name'] as String,
-      price: map['price'] as double,
-      quantity: map['quantity'] as int,
-      specialInstructions: map['specialInstructions'] as String,
-      modifiers: List<String>.from((map['modifiers'] as List<String>)),
-      status: map['status'] as String,
+      orderId: map['order_id'] as int,
+      productId: map['product_id'] as int,
+      name: map['name'] ?? '',
+      price: (map['price_at_purchase'] as num).toDouble(),
+      quantity: map['qty'] as int,
+      specialInstructions: map['special_instructions'] ?? '',
+      modifiers: [],
+      status: map['status'] ?? 'pending',
     );
   }
 

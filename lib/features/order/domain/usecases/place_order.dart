@@ -11,7 +11,6 @@ class PlaceOrder implements UseCase<OrderEntity, PlaceOrderParams> {
   PlaceOrder(this.repository);
 
   @override
-  @override
   Future<Either<Failure, OrderEntity>> call(PlaceOrderParams params) {
     return repository.placeOrder(userId: params.userId, items: params.items, total: params.totalAmount);
   }
