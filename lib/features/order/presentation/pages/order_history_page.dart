@@ -4,7 +4,6 @@ import 'package:food_commerce_v2/features/auth/presentation/bloc/auth_bloc.dart'
 import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
 import 'package:food_commerce_v2/features/order/presentation/bloc/order_bloc.dart';
 import 'package:food_commerce_v2/features/order/presentation/pages/order_details_page.dart';
-import 'package:food_commerce_v2/features/profile/presentation/pages/profile_page.dart';
 import 'package:intl/intl.dart';
 
 class OrderHistoryPage extends StatefulWidget {
@@ -18,15 +17,26 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
   @override
   void initState() {
     super.initState();
-    // 1. Trigger the fetch immediately when page opens
     _fetchOrders();
   }
 
   void _fetchOrders() {
-    // Get the User ID securely from the AuthBloc
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthAuthenticated) {
       context.read<OrderBloc>().add(FetchOrderHistory(userId: authState.user.id));
+    }
+  }
+
+  Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'completed':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -40,81 +50,97 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
           onPressed: () =>
               Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MainWrapperPage())),
         ),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
       ),
-
+      backgroundColor: Colors.grey[100],
       body: BlocBuilder<OrderBloc, OrderState>(
         builder: (context, state) {
-          // A. Loading State
           if (state is OrderInitial) {
-            // Ensure you have this state or reuse 'OrderSubmitting'
             return const Center(child: CircularProgressIndicator());
           }
 
-          // B. Error State
           if (state is OrderFailure) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("Error: ${state.message}"),
+                  const SizedBox(height: 10),
                   ElevatedButton(onPressed: _fetchOrders, child: const Text("Retry")),
                 ],
               ),
             );
           }
 
-          // C. Loaded State
           if (state is OrderHistoryLoaded) {
             if (state.orders!.isEmpty) {
               return const Center(child: Text("No past orders found."));
             }
 
             return ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               itemCount: state.orders!.length,
               itemBuilder: (context, index) {
                 final order = state.orders![index];
-
-                // Format date (Optional)
-                final dateStr = DateFormat('MMM dd, yyyy - hh:mm a').format(order.createdAt);
+                final dateStr = DateFormat('MMM dd, yyyy • hh:mm a').format(order.createdAt);
 
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: ExpansionTile(
-                    title: Text("Order #${order.id}"),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(dateStr, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                        Text(
-                          "\$${order.totalPrice.toStringAsFixed(2)} • ${order.status}",
-                          style: TextStyle(
-                            color: order.status == 'pending' ? Colors.orange : Colors.green,
-                            fontWeight: FontWeight.bold,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () =>
+                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => OrderDetailsPage(order: order))),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Left: Order ID and Date
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Order #${order.id}",
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(dateStr, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    children: [
-                      if (order.items != null)
-                        ...order.items!.map(
-                          (item) => GestureDetector(
-                            child: ListTile(
-                              visualDensity: VisualDensity.compact,
-                              leading: Text("${item.quantity}x", style: const TextStyle(fontWeight: FontWeight.bold)),
-                              title: Text(item.product.name), // Snapshot Name
-                              trailing: Text("\$${item.product.price}"), // Snapshot Price
-                            ),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => OrderDetailsPage(order: order), // Pass the object here!
+
+                          // Right: Total Price & Status
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                "\$${order.totalPrice.toStringAsFixed(2)}",
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: _statusColor(order.status).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              );
-                            },
+                                child: Text(
+                                  order.status.toUpperCase(),
+                                  style: TextStyle(
+                                    color: _statusColor(order.status),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                    ],
+                        ],
+                      ),
+                    ),
                   ),
                 );
               },

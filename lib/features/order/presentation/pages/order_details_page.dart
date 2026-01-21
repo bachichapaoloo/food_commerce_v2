@@ -49,31 +49,33 @@ class OrderDetailsPage extends StatelessWidget {
   // ---------------------------
   Widget _buildHeader(String formattedDate) {
     return Container(
-      width:double.infinity,
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Order #${order.id}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: order.status == 'completed' ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  order.status,
+                  style: TextStyle(color: order.status == 'completed' ? Colors.green : Colors.amber, fontWeight: FontWeight.w600),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
 
           /// STATUS CHIP
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-            child: Text(
-              order.status,
-              style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
+          const SizedBox(height: 8),
           Text(formattedDate, style: const TextStyle(fontSize: 13, color: Colors.grey)),
         ],
       ),
