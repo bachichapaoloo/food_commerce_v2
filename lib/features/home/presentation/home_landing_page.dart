@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_commerce_v2/core/widgets/carousel_widget.dart';
-import 'package:food_commerce_v2/core/widgets/square_button_widget.dart';
-import 'package:food_commerce_v2/features/home/data/models/promo_banner_model.dart';
+import 'package:food_commerce_v2/features/menu/presentation/bloc/menu_event.dart';
 import '../../menu/presentation/bloc/menu_bloc.dart';
 import '../../menu/presentation/bloc/menu_state.dart';
-import '../../menu/presentation/bloc/menu_event.dart';
 
 class HomeLandingPage extends StatefulWidget {
   const HomeLandingPage({super.key});
@@ -26,142 +23,156 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Time-based greeting logic
+    final hour = DateTime.now().hour;
+    String greeting = "Good Morning ☀️";
+    if (hour > 11) greeting = "Good Afternoon 🌤️";
+    if (hour > 17) greeting = "Good Evening 🌙";
+
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       body: CustomScrollView(
         slivers: [
-          // 1. Large Hero Banner
+          // 1. THE APP BAR
           SliverAppBar(
-            expandedHeight: 150.0,
-            floating: false,
+            expandedHeight: 140.0,
+            floating: true,
             pinned: true,
+            elevation: 0,
+            backgroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
-              background: Image.network(
-                'https://images.unsplash.com/photo-1504674900247-0877df9cc836', // Replace with asset
-                fit: BoxFit.cover,
-                color: Colors.black45,
-                colorBlendMode: BlendMode.darken,
+              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+              title: Text(greeting, style: const TextStyle(color: Colors.black87, fontSize: 16)),
+              background: Container(
+                color: Colors.white,
+                alignment: Alignment.centerRight,
+                // Add a faint background pattern or image here if desired
               ),
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.notifications_none, color: Colors.black),
+                onPressed: () {},
+              ),
+            ],
           ),
 
+          // 2. THE SEARCH BAR (Non-functional visual)
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: PromoCarousel(
-                banners: [
-                  PromoBanner(
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1559847844-5315695dadae?q=80&w=1158&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Replace with asset later
-                    title: 'Summer Specials',
-                    subtitle: 'Up to 50% off on selected items!',
-                    onTap: () {
-                      // Handle tap
-                    },
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: "Search for tacos, burgers...",
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
-                  PromoBanner(
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1541832676-9b763b0239ab?q=80&w=1020&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Replace with asset later
-                    title: 'Gourmet Delights',
-                    subtitle: 'Explore our new gourmet menu.',
-                    onTap: () {
-                      // Handle tap
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
           ),
 
-          // Delivery or Pick Up Options
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  BigSquareButton(
-                    title: 'Pickup',
-                    size: 150,
-                    icon: Icons.store,
-                    onTap: () {
-                      print('Pickup selected');
-                    },
-                    // isSelected: selectedType == 'pickup',
-                    borderColor: Colors.green,
-                  ),
-
-                  BigSquareButton(
-                    title: 'Dropoff',
-                    size: 150,
-                    icon: Icons.delivery_dining,
-                    onTap: () {
-                      print('Dropoff selected');
-                    },
-                    // isSelected: selectedType == 'dropoff',
-                    borderColor: Colors.red,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // 2. "Popular Now" Header
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text("Popular Now 🔥", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            ),
-          ),
-
-          // 3. Horizontal List of Featured Items
+          // 3. PROMO CAROUSEL
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 220,
-              child: BlocBuilder<MenuBloc, MenuState>(
-                builder: (context, state) {
-                  if (state is MenuLoaded) {
-                    final featuredItems = state.products.take(10).toList();
-
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: featuredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = featuredItems[index];
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SizedBox(
-                            width: 160,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.network(
-                                    item.imageUrl,
-                                    height: 120,
-                                    width: 160,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, size: 80),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                Text("\$${item.price.toStringAsFixed(2)}", style: TextStyle(color: Colors.grey[600])),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return const Center(child: Text("Failed to load menu items."));
-                  }
-                },
+              height: 180,
+              child: PageView(
+                controller: PageController(viewportFraction: 0.9),
+                children: [
+                  _buildPromoCard(Colors.orange, "Get 50% Off", "On your first order"),
+                  _buildPromoCard(Colors.blue, "Free Delivery", "Order over \$20"),
+                ],
               ),
             ),
           ),
 
-          // 4. More sections (Categories, Deals, etc)...
+          // 4. "POPULAR NOW" HEADER
+          const SliverPadding(
+            padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+            sliver: SliverToBoxAdapter(
+              child: Text("Popular Now 🔥", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+          ),
+
+          // 5. THE FOOD GRID (Dynamic from BLoC)
+          BlocBuilder<MenuBloc, MenuState>(
+            builder: (context, state) {
+              if (state is MenuLoaded) {
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 0.75, // Taller cards
+                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final product = state.products[index];
+                      return Container(
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                child: Image.network(
+                                  product.imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, color: Colors.grey),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Text("\$${product.price}", style: const TextStyle(color: Colors.green)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }, childCount: state.products.length),
+                  ),
+                );
+              }
+              return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));
+            },
+          ),
+
+          // Bottom padding so items aren't stuck behind nav bar
+          const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPromoCard(Color color, String title, String subtitle) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(16)),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(subtitle, style: const TextStyle(color: Colors.white70, fontSize: 16)),
         ],
       ),
     );

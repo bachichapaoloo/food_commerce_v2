@@ -1,7 +1,10 @@
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:food_commerce_v2/features/menu/presentation/bloc/menu_bloc.dart';
+import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
 import 'package:food_commerce_v2/features/order/presentation/bloc/order_bloc.dart';
 import 'injection_container.dart' as di;
 import 'features/auth/presentation/bloc/auth_bloc.dart';
@@ -11,14 +14,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init(); // Initialize GetIt
   runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => di.sl<AuthBloc>()),
-        BlocProvider(create: (_) => di.sl<CartBloc>()),
-        BlocProvider(create: (_) => di.sl<MenuBloc>()),
-        BlocProvider(create: (_) => di.sl<OrderBloc>()),
-      ],
-      child: const MyApp(),
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => di.sl<AuthBloc>()),
+          BlocProvider(create: (_) => di.sl<CartBloc>()),
+          BlocProvider(create: (_) => di.sl<MenuBloc>()),
+          BlocProvider(create: (_) => di.sl<OrderBloc>()),
+        ],
+        child: const MyApp(),
+      ),
     ),
   );
 }

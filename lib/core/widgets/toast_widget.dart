@@ -27,15 +27,17 @@ class AppToast {
     BuildContext context, {
     required String title,
     required String message,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = const Duration(seconds: 1),
+    Duration animationDuration = const Duration(milliseconds: 500),
   }) {
     MotionToast.success(
       title: _title(title),
       description: _message(message),
-      animationType: AnimationType.slideInFromRight,
+      animationType: AnimationType.slideInFromLeft,
       toastAlignment: Alignment.topRight,
       dismissable: true,
       toastDuration: duration,
+      animationDuration: animationDuration,
     ).show(context);
   }
 
@@ -47,14 +49,16 @@ class AppToast {
     required String title,
     required String message,
     Duration duration = const Duration(seconds: 4),
+    Duration animationDuration = const Duration(milliseconds: 500),
   }) {
     MotionToast.error(
       title: _title(title),
       description: _message(message),
-      animationType: AnimationType.slideInFromRight,
+      animationType: AnimationType.slideInFromLeft,
       toastAlignment: Alignment.topRight,
       dismissable: true,
       toastDuration: duration,
+      animationDuration: animationDuration,
     ).show(context);
   }
 
@@ -65,7 +69,7 @@ class AppToast {
     MotionToast.warning(
       title: _title(title),
       description: _message(message),
-      animationType: AnimationType.slideInFromRight,
+      animationType: AnimationType.slideInFromLeft,
       toastAlignment: Alignment.topRight,
       dismissable: true,
     ).show(context);
@@ -78,7 +82,7 @@ class AppToast {
     MotionToast.info(
       title: _title(title),
       description: _message(message),
-      animationType: AnimationType.slideInFromRight,
+      animationType: AnimationType.slideInFromLeft,
       toastAlignment: Alignment.topRight,
       dismissable: true,
     ).show(context);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_commerce_v2/core/widgets/toast_widget.dart';
 import 'package:food_commerce_v2/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:food_commerce_v2/features/auth/presentation/pages/login_page.dart';
 import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_bloc.dart';
@@ -50,9 +51,12 @@ class _HomeView extends StatelessWidget {
         child: BlocConsumer<MenuBloc, MenuState>(
           listener: (context, state) {
             if (state is MenuLoaded && state.error != null) {
-              ScaffoldMessenger.of(
+              AppToast.error(
                 context,
-              ).showSnackBar(SnackBar(content: Text(state.error!), backgroundColor: Colors.red));
+                title: "ERROR",
+                message: state.error!,
+                animationDuration: Duration(milliseconds: 500),
+              );
             }
           },
           builder: (context, state) {
@@ -116,13 +120,11 @@ class _HomeView extends StatelessWidget {
                                   icon: const Icon(Icons.add_shopping_cart),
                                   onPressed: () {
                                     context.read<CartBloc>().add(AddItemToCart(product));
-
-                                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text("${product.name} added!"),
-                                        duration: const Duration(milliseconds: 600),
-                                      ),
+                                    AppToast.success(
+                                      context,
+                                      title: "SUCCESS",
+                                      message: "${product.name} added!",
+                                      animationDuration: Duration(milliseconds: 500),
                                     );
                                   },
                                 ),

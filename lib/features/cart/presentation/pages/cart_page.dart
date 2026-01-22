@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_commerce_v2/core/widgets/toast_widget.dart';
 import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
 import '../../../../injection_container.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -52,9 +53,7 @@ class _CartView extends StatelessWidget {
         }
 
         if (state is OrderFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: Colors.red));
+          AppToast.error(context, title: "ERROR", message: state.message, animationDuration: Duration(milliseconds: 500));
         }
       },
       child: Scaffold(
@@ -104,20 +103,9 @@ class _CartView extends StatelessWidget {
                           child: const Icon(Icons.delete_outline, color: Colors.white, size: 30),
                         ),
                         onDismissed: (direction) {
-                          context.read<CartBloc>().add(RemoveItemFromCart(item.product));
+                          context.read<CartBloc>().add(RemoveItemCompletely(item.product));
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("${item.product.name} removed"),
-                              duration: const Duration(seconds: 2),
-                              action: SnackBarAction(
-                                label: 'UNDO',
-                                onPressed: () {
-                                  context.read<CartBloc>().add(AddItemToCart(item.product));
-                                },
-                              ),
-                            ),
-                          );
+                          AppToast.success(context, title: "SUCCESS", message: "${item.product.name} removed", animationDuration: Duration(milliseconds: 500));
                         },
                         child: Card(
                           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -237,7 +225,8 @@ class _CartView extends StatelessWidget {
     final authState = context.read<AuthBloc>().state;
 
     if (authState is! AuthAuthenticated) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("You must be logged in!")));
+      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("You must be logged in!")));
+      AppToast.warning(context, title: "WARNING", message: "You must be logged in!");
       return;
     }
 

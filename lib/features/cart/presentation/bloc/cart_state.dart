@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'cart_bloc.dart';
 
 enum CartStatus { initial, loading, success, error }
@@ -17,4 +18,12 @@ class CartState extends Equatable {
 
   @override
   List<Object> get props => [items];
+
+  CartState copyWith({List<CartItemEntity>? items, CartStatus? status, String? errorMessage}) {
+    return CartState(
+      items: items ?? this.items,
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
 }
