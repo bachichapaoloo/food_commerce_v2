@@ -94,58 +94,84 @@ class _CartView extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final item = cartState.items[index];
 
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  item.product.imageUrl,
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, size: 40),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
+                      return Dismissible(
+                        key: ValueKey(item.product.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                          color: Colors.red.shade400,
+                          child: const Icon(Icons.delete_outline, color: Colors.white, size: 30),
+                        ),
+                        onDismissed: (direction) {
+                          context.read<CartBloc>().add(RemoveItemFromCart(item.product));
 
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("${item.product.name} removed"),
+                              duration: const Duration(seconds: 2),
+                              action: SnackBarAction(
+                                label: 'UNDO',
+                                onPressed: () {
+                                  context.read<CartBloc>().add(AddItemToCart(item.product));
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    item.product.imageUrl,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, size: 40),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(item.product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      Text(
+                                        "\$${(item.product.price * item.quantity).toStringAsFixed(2)}",
+                                        style: TextStyle(color: Colors.grey[600]),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                Row(
                                   children: [
-                                    Text(item.product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    IconButton(
+                                      icon: const Icon(Icons.remove_circle_outline),
+                                      onPressed: () {
+                                        context.read<CartBloc>().add(RemoveItemFromCart(item.product));
+                                      },
+                                    ),
                                     Text(
-                                      "\$${(item.product.price * item.quantity).toStringAsFixed(2)}",
-                                      style: TextStyle(color: Colors.grey[600]),
+                                      "${item.quantity}",
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.add_circle_outline),
+                                      onPressed: () {
+                                        context.read<CartBloc>().add(AddItemToCart(item.product));
+                                      },
                                     ),
                                   ],
                                 ),
-                              ),
-
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove_circle_outline),
-                                    onPressed: () {
-                                      context.read<CartBloc>().add(RemoveItemFromCart(item.product));
-                                    },
-                                  ),
-                                  Text(
-                                    "${item.quantity}",
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.add_circle_outline),
-                                    onPressed: () {
-                                      context.read<CartBloc>().add(AddItemToCart(item.product));
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );
