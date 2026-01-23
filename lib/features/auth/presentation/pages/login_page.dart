@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_commerce_v2/core/widgets/toast_widget.dart';
 import 'package:food_commerce_v2/features/menu/presentation/pages/menu_page.dart';
 import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
 import '../bloc/auth_bloc.dart';
@@ -37,9 +38,12 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
-            ScaffoldMessenger.of(
+            AppToast.error(
               context,
-            ).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: Colors.red));
+              title: "ERROR",
+              message: "Invalid username or password, please try again.",
+              animationDuration: Duration(milliseconds: 500),
+            );
           } else if (state is AuthAuthenticated) {
             // Navigate to Home on success
             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MainWrapperPage()));
