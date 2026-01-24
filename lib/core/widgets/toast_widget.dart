@@ -34,7 +34,7 @@ class AppToast {
       title: _title(title),
       description: _message(message),
       animationType: AnimationType.slideInFromLeft,
-      toastAlignment: Alignment.topRight,
+      toastAlignment: Alignment.topLeft,
       dismissable: true,
       toastDuration: duration,
       animationDuration: animationDuration,
@@ -55,7 +55,7 @@ class AppToast {
       title: _title(title),
       description: _message(message),
       animationType: AnimationType.slideInFromLeft,
-      toastAlignment: Alignment.topRight,
+      toastAlignment: Alignment.topLeft,
       dismissable: true,
       toastDuration: duration,
       animationDuration: animationDuration,
@@ -70,7 +70,7 @@ class AppToast {
       title: _title(title),
       description: _message(message),
       animationType: AnimationType.slideInFromLeft,
-      toastAlignment: Alignment.topRight,
+      toastAlignment: Alignment.topLeft,
       dismissable: true,
     ).show(context);
   }
@@ -83,7 +83,7 @@ class AppToast {
       title: _title(title),
       description: _message(message),
       animationType: AnimationType.slideInFromLeft,
-      toastAlignment: Alignment.topRight,
+      toastAlignment: Alignment.topLeft,
       dismissable: true,
     ).show(context);
   }

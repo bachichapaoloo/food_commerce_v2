@@ -15,4 +15,6 @@ abstract class AuthRepository {
 
   // Useful to check if user is already logged in on app start
   Future<Either<Failure, UserEntity>> getCurrentUser();
+
+  Future<Either<Failure, bool>> signInWithGoogle();
 }

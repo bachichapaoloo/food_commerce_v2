@@ -7,6 +7,7 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> registerWithEmailPassword(String email, String password, String username);
   Future<void> logout();
   Future<UserModel?> getCurrentUser();
+  Future<bool> signInWithGoogle();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -67,6 +68,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final data = await supabaseClient.from('profiles').select().eq('id', userId).single();
 
       return UserModel(id: userId, email: email, username: data['username'] ?? 'User');
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<bool> signInWithGoogle() async {
+    try {
+      // 1. Trigger the sign-in flow
+      // This will open the default browser (Chrome/Safari/Edge)
+      final result = await supabaseClient.auth.signInWithOAuth(
+        OAuthProvider.google,
+
+        // CRITICAL: This MUST match exactly what you set in:
+        // 1. AndroidManifest.xml (data android:scheme="io.foodcommerce.app" ...)
+        // 2. Info.plist (CFBundleURLSchemes)
+        // 3. Supabase Dashboard (Redirect URLs)
+        redirectTo: 'io.foodcommerce.app://login-callback',
+      );
+
+      // 2. Return success
+      // Note: This just means "Browser launched successfully".
+      // The actual login happens when the user clicks "Yes" in the browser
+      // and the browser redirects back to the app.
+      return result;
     } catch (e) {
       throw ServerException(e.toString());
     }

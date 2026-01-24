@@ -1,5 +1,6 @@
 import 'package:food_commerce_v2/features/auth/domain/usecases/get_current_user.dart';
 import 'package:food_commerce_v2/features/auth/domain/usecases/logout_user.dart';
+import 'package:food_commerce_v2/features/auth/domain/usecases/sign_in_with_google.dart';
 import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:food_commerce_v2/features/menu/data/datasources/menu_remote_data_source.dart';
 import 'package:food_commerce_v2/features/menu/data/repositories/menu_repository_impl.dart';
@@ -34,7 +35,9 @@ Future<void> init() async {
   );
 
   // Bloc
-  sl.registerFactory(() => AuthBloc(loginUser: sl(), registerUser: sl(), getCurrentUser: sl(), logoutUser: sl()));
+  sl.registerFactory(
+    () => AuthBloc(loginUser: sl(), registerUser: sl(), getCurrentUser: sl(), logoutUser: sl(), signInWithGoogle: sl()),
+  );
 
   // Use Cases
   sl.registerLazySingleton(() => LoginUser(sl()));
@@ -59,8 +62,9 @@ Future<void> init() async {
   sl.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<OrderRemoteDataSource>(() => OrderRemoteDataSourceImpl(supabaseClient: sl()));
 
-  // Repository
+  // Repository and authentication
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => SignInWithGoogle(sl()));
 
   // Data Source
   sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(supabaseClient: sl()));

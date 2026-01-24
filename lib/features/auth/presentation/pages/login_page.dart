@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:food_commerce_v2/core/widgets/toast_widget.dart';
 import 'package:food_commerce_v2/features/menu/presentation/pages/menu_page.dart';
 import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
@@ -100,6 +101,38 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: _onLoginPressed,
                       style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
                       child: const Text("Sign In"),
+                    ),
+
+                    const SizedBox(height: 20),
+                    const Row(
+                      children: [
+                        Expanded(child: Divider()),
+                        Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text("OR")),
+                        Expanded(child: Divider()),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    Center(
+                      child: InkWell(
+                        onTap: () {
+                          context.read<AuthBloc>().add(AuthSignInGoogleRequested());
+                        },
+                        borderRadius: BorderRadius.circular(50),
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey.shade300),
+                            boxShadow: [BoxShadow(color: Colors.grey.shade200, blurRadius: 5)],
+                          ),
+                          // Ensure you have a google_icon.png in your assets!
+                          child: FaIcon(FontAwesomeIcons.google, color: Colors.redAccent, size: 34),
+                        ),
+                      ),
                     ),
                   ],
                 ),
