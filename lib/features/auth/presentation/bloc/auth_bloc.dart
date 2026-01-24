@@ -76,16 +76,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthSignInGoogleRequested>((event, emit) async {
       emit(AuthLoading());
+
+      // 1. We MUST await the result
       final result = await signInWithGoogle(NoParams());
 
-      result.fold((failure) => emit(AuthFailure(failure)), (success) async {
-        if (success) {
-          // Assuming you want to fetch the current user after successful sign-in
-          final userResult = await _getCurrentUser();
-          userResult.fold((_) => emit(AuthUnauthenticated()), (user) => emit(AuthAuthenticated(user)));
-        } else {
-          emit(AuthUnauthenticated());
-        }
+      // 2. Now the result is ready, we can safely fold/emit
+      result.fold((failure) => emit(AuthFailure(failure)), (success) {
+        // Browser opened successfully.
+        // We don't emit 'Authenticated' here yet because the user
+        // hasn't actually logged in. They just opened Chrome.
+        // The deep link will handle the rest later.
       });
     });
   }

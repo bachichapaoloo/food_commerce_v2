@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_commerce_v2/features/menu/presentation/bloc/menu_event.dart';
+import 'package:food_commerce_v2/features/menu/presentation/pages/product_details.dart';
 import '../../menu/presentation/bloc/menu_bloc.dart';
 import '../../menu/presentation/bloc/menu_state.dart';
 
@@ -42,11 +43,17 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
             backgroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              title: Text(greeting, style: const TextStyle(color: Colors.black87, fontSize: 16)),
-              background: Container(
-                color: Colors.white,
-                alignment: Alignment.centerRight,
-                // Add a faint background pattern or image here if desired
+              title: Text(greeting, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16)),
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    'https://images.unsplash.com/photo-1504674900247-0877df9cc836',
+                    fit: BoxFit.cover,
+                    alignment: Alignment.centerRight,
+                  ),
+                  Container(color: Colors.white.withOpacity(0.6)),
+                ],
               ),
             ),
             actions: [
@@ -104,7 +111,7 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
             builder: (context, state) {
               if (state is MenuLoaded) {
                 return SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   sliver: SliverGrid(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
@@ -114,34 +121,44 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                     ),
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final product = state.products[index];
-                      return Container(
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                child: Image.network(
-                                  product.imageUrl,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, color: Colors.grey),
+                      return GestureDetector(
+                        child: Container(
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                  child: Image.network(
+                                    product.imageUrl,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, color: Colors.grey),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  Text("\$${product.price}", style: const TextStyle(color: Colors.green)),
-                                ],
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    Text("\$${product.price}", style: const TextStyle(color: Colors.green)),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        onTap: () async {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ProductDetailsPage(product: product), // Pass the entity!
+                            ),
+                          );
+                        },
                       );
                     }, childCount: state.products.length),
                   ),
