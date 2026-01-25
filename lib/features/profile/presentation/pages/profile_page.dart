@@ -21,7 +21,11 @@ class ProfilePage extends StatelessWidget {
             accountEmail: Text(user.email),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
-              child: Text(user.username[0].toUpperCase(), style: const TextStyle(fontSize: 40)),
+              child: CircleAvatar(
+                radius: 36,
+                backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
+                child: user.avatarUrl == null ? const Icon(Icons.person, color: Colors.grey) : null,
+              ),
             ),
             decoration: BoxDecoration(color: Colors.orange.shade400),
           ),

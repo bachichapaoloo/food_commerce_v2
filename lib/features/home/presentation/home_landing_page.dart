@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_commerce_v2/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:food_commerce_v2/features/menu/presentation/bloc/menu_event.dart';
 import 'package:food_commerce_v2/features/menu/presentation/pages/product_details.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../menu/presentation/bloc/menu_bloc.dart';
 import '../../menu/presentation/bloc/menu_state.dart';
 
@@ -24,11 +26,13 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+
     // Time-based greeting logic
     final hour = DateTime.now().hour;
-    String greeting = "Good Morning ☀️";
-    if (hour > 11) greeting = "Good Afternoon 🌤️";
-    if (hour > 17) greeting = "Good Evening 🌙";
+    String greeting = "Good Morning ";
+    if (hour > 11) greeting = "Good Afternoon ";
+    if (hour > 17) greeting = "Good Evening ";
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -43,7 +47,10 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
             backgroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              title: Text(greeting, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16)),
+              title: Text(
+                "$greeting${user.username}!",
+                style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 14),
+              ),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -110,6 +117,8 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
           BlocBuilder<MenuBloc, MenuState>(
             builder: (context, state) {
               if (state is MenuLoaded) {
+                final products = state.products.take(6).toList();
+
                 return SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   sliver: SliverGrid(
@@ -117,50 +126,45 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
-                      childAspectRatio: 0.75, // Taller cards
+                      childAspectRatio: 0.75,
                     ),
                     delegate: SliverChildBuilderDelegate((context, index) {
-                      final product = state.products[index];
+                      final product = products[index];
                       return GestureDetector(
-                        child: Container(
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                  child: Image.network(
-                                    product.imageUrl,
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, color: Colors.grey),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                    Text("\$${product.price}", style: const TextStyle(color: Colors.green)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        onTap: () async {
+                        onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => ProductDetailsPage(product: product), // Pass the entity!
-                            ),
+                            MaterialPageRoute(builder: (_) => ProductDetailsPage(product: product)),
                           );
                         },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                child: Image.network(
+                                  product.imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, color: Colors.grey),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Text("\$${product.price}", style: const TextStyle(color: Colors.green)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       );
-                    }, childCount: state.products.length),
+                    }, childCount: products.length),
                   ),
                 );
               }

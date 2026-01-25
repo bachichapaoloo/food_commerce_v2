@@ -44,7 +44,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       // Note: In production, a Postgres Trigger is safer, but this is fine for now.
       await supabaseClient.from('profiles').insert({'id': response.user!.id, 'username': username, 'email': email});
 
-      return UserModel(id: response.user!.id, email: email, username: username);
+      return UserModel(id: response.user!.id, email: email, username: username, avatarUrl: '');
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -67,7 +67,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final data = await supabaseClient.from('profiles').select().eq('id', userId).single();
 
-      return UserModel(id: userId, email: email, username: data['username'] ?? 'User');
+      return UserModel(
+        id: userId,
+        email: email,
+        username: data['username'] ?? 'User',
+        avatarUrl: data['avatar_url'] ?? '',
+      );
     } catch (e) {
       throw ServerException(e.toString());
     }
