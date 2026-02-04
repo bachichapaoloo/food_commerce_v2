@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/enitities/product_entity.dart';
+import '../../data/models/product_model.dart';
 import '../../../cart/presentation/bloc/cart_bloc.dart';
 
 class ProductDetailsPage extends StatefulWidget {
@@ -16,19 +17,26 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int quantity = 1;
   final TextEditingController _notesController = TextEditingController();
 
-  // Simulation: In a real app, these would come from the Database (product.options)
-  // For now, we mock them to build the UI logic.
-  final Map<String, double> _availableAddons = {"Extra Cheese": 1.50, "Add Bacon": 2.00, "Upgrade to Large": 3.00};
+  // Key: GroupID, Value: Set of selected Options
+  final Map<String, Set<AddOnOptionModel>> _selectedOptions = {};
 
-  // Track selected add-ons
-  final Set<String> _selectedAddons = {};
+  @override
+  void initState() {
+    super.initState();
+    // Initialize empty sets for each group to avoid null checks later
+    for (var group in widget.product.addOnGroups) {
+      _selectedOptions[group.id] = {};
+    }
+  }
 
   // Calculate total price dynamically
   double get _totalPrice {
     double addonTotal = 0;
-    for (var addon in _selectedAddons) {
-      addonTotal += _availableAddons[addon]!;
-    }
+    _selectedOptions.forEach((key, options) {
+      for (var option in options) {
+        addonTotal += option.priceModifier;
+      }
+    });
     return (widget.product.price + addonTotal) * quantity;
   }
 
@@ -142,37 +150,89 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                   const SizedBox(height: 30),
 
-                  // 3. ADD-ONS SECTION (The "Upsell")
-                  const Text("Customize your Order", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  ..._availableAddons.keys.map((addonName) {
-                    final price = _availableAddons[addonName]!;
-                    final isSelected = _selectedAddons.contains(addonName);
+                  // 3. ADD-ONS SECTION (Dynamic)
+                  if (widget.product.addOnGroups.isNotEmpty) ...[
+                    const Text("Customize your Order", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    ...widget.product.addOnGroups.map((group) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              "${group.name} ${group.maxSelection > 1 ? '(Choose up to ${group.maxSelection})' : '(Choose 1)'}",
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                          ),
+                          ...group.options.map((option) {
+                            final modelOption = option as AddOnOptionModel; // Cast for now as we know logic uses models
+                            final isSelected = _selectedOptions[group.id]?.contains(modelOption) ?? false;
 
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: isSelected ? Colors.green : Colors.grey.shade200),
-                        borderRadius: BorderRadius.circular(12),
-                        color: isSelected ? Colors.green.withOpacity(0.05) : Colors.white,
-                      ),
-                      child: CheckboxListTile(
-                        activeColor: Colors.green,
-                        title: Text(addonName, style: const TextStyle(fontWeight: FontWeight.w500)),
-                        secondary: Text("+\$${price.toStringAsFixed(2)}", style: const TextStyle(color: Colors.grey)),
-                        value: isSelected,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            if (value == true) {
-                              _selectedAddons.add(addonName);
-                            } else {
-                              _selectedAddons.remove(addonName);
-                            }
-                          });
-                        },
-                      ),
-                    );
-                  }),
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: isSelected ? Colors.green : Colors.grey.shade200),
+                                borderRadius: BorderRadius.circular(12),
+                                color: isSelected ? Colors.green.withOpacity(0.05) : Colors.white,
+                              ),
+                              child: group.maxSelection == 1
+                                  ? RadioListTile<AddOnOptionModel>(
+                                      activeColor: Colors.green,
+                                      title: Text(option.name, style: const TextStyle(fontWeight: FontWeight.w500)),
+                                      secondary: Text(
+                                        option.priceModifier > 0
+                                            ? "+\$${option.priceModifier.toStringAsFixed(2)}"
+                                            : "Free",
+                                        style: const TextStyle(color: Colors.grey),
+                                      ),
+                                      value: modelOption,
+                                      groupValue: _selectedOptions[group.id]?.isNotEmpty == true
+                                          ? _selectedOptions[group.id]!.first
+                                          : null,
+                                      onChanged: (AddOnOptionModel? value) {
+                                        setState(() {
+                                          _selectedOptions[group.id]!.clear(); // Radio: clear others
+                                          if (value != null) {
+                                            _selectedOptions[group.id]!.add(value);
+                                          }
+                                        });
+                                      },
+                                    )
+                                  : CheckboxListTile(
+                                      activeColor: Colors.green,
+                                      title: Text(option.name, style: const TextStyle(fontWeight: FontWeight.w500)),
+                                      secondary: Text(
+                                        option.priceModifier > 0
+                                            ? "+\$${option.priceModifier.toStringAsFixed(2)}"
+                                            : "Free",
+                                        style: const TextStyle(color: Colors.grey),
+                                      ),
+                                      value: isSelected,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          if (value == true) {
+                                            // Optional: Enforce max selection limit for checkboxes
+                                            if (_selectedOptions[group.id]!.length < group.maxSelection) {
+                                              _selectedOptions[group.id]!.add(modelOption);
+                                            } else {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Max ${group.maxSelection} selection allowed.")),
+                                              );
+                                            }
+                                          } else {
+                                            _selectedOptions[group.id]!.remove(modelOption);
+                                          }
+                                        });
+                                      },
+                                    ),
+                            );
+                          }),
+                          const SizedBox(height: 16),
+                        ],
+                      );
+                    }),
+                  ],
 
                   const SizedBox(height: 24),
 
@@ -265,9 +325,37 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     // For now, we just add the base product x quantity.
     // In "Phase 3: Advanced Cart", we will update the Cart Logic to store these notes.
 
+    // Flatten Logic: Create a new product entity with modified name and price
+    String customizedName = widget.product.name;
+    double additionalPrice = 0;
+    List<String> selectedNames = [];
+
+    _selectedOptions.forEach((key, options) {
+      for (var option in options) {
+        selectedNames.add(option.name);
+        additionalPrice += option.priceModifier;
+      }
+    });
+
+    if (selectedNames.isNotEmpty) {
+      customizedName += " (${selectedNames.join(', ')})";
+    }
+
+    final customizedProduct = ProductEntity(
+      id: widget
+          .product
+          .id, // Keep ID for reference, though strictly this might merge cart items incorrectly if not handled. For V1 is ok.
+      name: customizedName,
+      description: _notesController.text.isNotEmpty ? "Note: ${_notesController.text}" : widget.product.description,
+      price: widget.product.price + additionalPrice,
+      imageUrl: widget.product.imageUrl,
+      categoryId: widget.product.categoryId,
+      addOnGroups: widget.product.addOnGroups, // Keep original structure
+    );
+
     // We loop to support the quantity
     for (int i = 0; i < quantity; i++) {
-      context.read<CartBloc>().add(AddItemToCart(widget.product));
+      context.read<CartBloc>().add(AddItemToCart(customizedProduct));
     }
 
     Navigator.pop(context);

@@ -17,6 +17,14 @@ import 'package:food_commerce_v2/features/admin/presentation/bloc/admin_bloc.dar
 import 'package:food_commerce_v2/features/admin/domain/repositories/admin_repository.dart';
 import 'package:food_commerce_v2/features/admin/data/repositories/admin_repository_impl.dart';
 import 'package:food_commerce_v2/features/admin/data/datasources/admin_remote_data_source.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/create_add_on_group.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/create_product.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/delete_add_on_group.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/delete_product.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/get_add_on_groups.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/get_admin_products.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/update_add_on_group.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/update_product.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -67,7 +75,28 @@ Future<void> init() async {
   sl.registerLazySingleton<OrderRemoteDataSource>(() => OrderRemoteDataSourceImpl(supabaseClient: sl()));
 
   // Feature - Admin
-  sl.registerFactory(() => AdminBloc(adminRepository: sl()));
+  sl.registerFactory(
+    () => AdminBloc(
+      getAdminProducts: sl(),
+      createProduct: sl(),
+      updateProduct: sl(),
+      deleteProduct: sl(),
+      getAddOnGroups: sl(),
+      createAddOnGroup: sl(),
+      updateAddOnGroup: sl(),
+      deleteAddOnGroup: sl(),
+    ),
+  );
+  // Admin Usecases
+  sl.registerLazySingleton(() => GetAdminProducts(sl()));
+  sl.registerLazySingleton(() => CreateProductUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProductUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteProductUseCase(sl()));
+  sl.registerLazySingleton(() => GetAddOnGroups(sl()));
+  sl.registerLazySingleton(() => CreateAddOnGroupUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateAddOnGroupUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteAddOnGroupUseCase(sl()));
+
   sl.registerLazySingleton<AdminRepository>(() => AdminRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<AdminRemoteDataSource>(() => AdminRemoteDataSourceImpl(supabaseClient: sl()));
 

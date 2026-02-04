@@ -1,12 +1,37 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_commerce_v2/features/admin/domain/repositories/admin_repository.dart';
+import 'package:food_commerce_v2/core/usecases/usecase.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/create_add_on_group.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/create_product.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/delete_add_on_group.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/delete_product.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/get_add_on_groups.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/get_admin_products.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/update_add_on_group.dart';
+import 'package:food_commerce_v2/features/admin/domain/usecases/update_product.dart';
 import 'admin_event.dart';
 import 'admin_state.dart';
 
 class AdminBloc extends Bloc<AdminEvent, AdminState> {
-  final AdminRepository adminRepository;
+  final GetAdminProducts getAdminProducts;
+  final CreateProductUseCase createProduct;
+  final UpdateProductUseCase updateProduct;
+  final DeleteProductUseCase deleteProduct;
 
-  AdminBloc({required this.adminRepository}) : super(AdminInitial()) {
+  final GetAddOnGroups getAddOnGroups;
+  final CreateAddOnGroupUseCase createAddOnGroup;
+  final UpdateAddOnGroupUseCase updateAddOnGroup;
+  final DeleteAddOnGroupUseCase deleteAddOnGroup;
+
+  AdminBloc({
+    required this.getAdminProducts,
+    required this.createProduct,
+    required this.updateProduct,
+    required this.deleteProduct,
+    required this.getAddOnGroups,
+    required this.createAddOnGroup,
+    required this.updateAddOnGroup,
+    required this.deleteAddOnGroup,
+  }) : super(AdminInitial()) {
     on<LoadAdminData>(_onLoadAdminData);
     on<CreateProduct>(_onCreateProduct);
     on<UpdateProduct>(_onUpdateProduct);
@@ -18,8 +43,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
 
   Future<void> _onLoadAdminData(LoadAdminData event, Emitter<AdminState> emit) async {
     emit(AdminLoading());
-    final productsResult = await adminRepository.getProducts();
-    final addonsResult = await adminRepository.getAddOnGroups();
+    final productsResult = await getAdminProducts(NoParams());
+    final addonsResult = await getAddOnGroups(NoParams());
 
     productsResult.fold((failure) => emit(AdminError(failure.message)), (products) {
       addonsResult.fold(
@@ -30,42 +55,46 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
   }
 
   Future<void> _onCreateProduct(CreateProduct event, Emitter<AdminState> emit) async {
-    // Optimistic or refresh? Refresh for now.
     emit(AdminLoading());
-    final result = await adminRepository.createProduct(event.product);
+    final result = await createProduct(event.product);
     result.fold((failure) => emit(AdminError(failure.message)), (_) {
-      // emit(const AdminSuccess("Product Created")); // Careful with state flow
       add(LoadAdminData());
     });
   }
 
   Future<void> _onUpdateProduct(UpdateProduct event, Emitter<AdminState> emit) async {
     emit(AdminLoading());
-    final result = await adminRepository.updateProduct(event.product);
+    final result = await updateProduct(event.product);
     result.fold((failure) => emit(AdminError(failure.message)), (_) => add(LoadAdminData()));
   }
 
   Future<void> _onDeleteProduct(DeleteProduct event, Emitter<AdminState> emit) async {
     emit(AdminLoading());
-    final result = await adminRepository.deleteProduct(event.id);
+    final result = await deleteProduct(event.id);
     result.fold((failure) => emit(AdminError(failure.message)), (_) => add(LoadAdminData()));
   }
 
   Future<void> _onCreateAddOnGroup(CreateAddOnGroup event, Emitter<AdminState> emit) async {
     emit(AdminLoading());
-    final result = await adminRepository.createAddOnGroup(event.group);
-    result.fold((failure) => emit(AdminError(failure.message)), (_) => add(LoadAdminData()));
+    final result = await createAddOnGroup(event.group);
+    result.fold((failure) {
+      print("Bloc Error Create Group: ${failure.message}");
+      emit(AdminError(failure.message));
+    }, (_) => add(LoadAdminData()));
   }
 
   Future<void> _onUpdateAddOnGroup(UpdateAddOnGroup event, Emitter<AdminState> emit) async {
     emit(AdminLoading());
-    final result = await adminRepository.updateAddOnGroup(event.group);
+    final result = await updateAddOnGroup(event.group);
     result.fold((failure) => emit(AdminError(failure.message)), (_) => add(LoadAdminData()));
   }
 
   Future<void> _onDeleteAddOnGroup(DeleteAddOnGroup event, Emitter<AdminState> emit) async {
     emit(AdminLoading());
-    final result = await adminRepository.deleteAddOnGroup(event.id);
-    result.fold((failure) => emit(AdminError(failure.message)), (_) => add(LoadAdminData()));
+    final result = await deleteAddOnGroup(event.id);
+    result.fold((failure) {
+      print("Bloc Error Delete Group: ${failure.message}");
+      emit(AdminError(failure.message));
+    }, (_) => add(LoadAdminData()));
   }
 }

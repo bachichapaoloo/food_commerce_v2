@@ -20,6 +20,7 @@ class ProductEntity extends Equatable {
   final String imageUrl;
   final int categoryId;
   final List<AddOnGroup> addOnGroups;
+  final bool isActive;
 
   const ProductEntity({
     required this.id,
@@ -29,8 +30,9 @@ class ProductEntity extends Equatable {
     required this.imageUrl,
     required this.categoryId,
     this.addOnGroups = const [],
+    this.isActive = true,
   });
 
   @override
-  List<Object?> get props => [id, name, description, price, categoryId, imageUrl, addOnGroups];
+  List<Object?> get props => [id, name, description, price, categoryId, imageUrl, addOnGroups, isActive];
 }

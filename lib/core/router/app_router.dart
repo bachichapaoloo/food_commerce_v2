@@ -11,7 +11,7 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/admin', // Temporary: start at admin for development
+  initialLocation: '/login',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const MainWrapperPage()),
     GoRoute(path: '/login', builder: (context, state) => const LoginPage()),

@@ -98,66 +98,79 @@ class _AddOnGroupDialogState extends State<_AddOnGroupDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.group == null ? 'New Add-on Group' : 'Edit Add-on Group'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Group Name (e.g. Size)'),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _minController,
-                    decoration: const InputDecoration(labelText: 'Min Select'),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _maxController,
-                    decoration: const InputDecoration(labelText: 'Max Select'),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text('Options', style: TextStyle(fontWeight: FontWeight.bold)),
-            ..._tempOptions.map(
-              (o) => ListTile(
-                title: Text(o.name),
-                trailing: Text(o.priceModifier > 0 ? '+${o.priceModifier}' : ''),
-                dense: true,
-                contentPadding: EdgeInsets.zero,
+    return BlocListener<AdminBloc, AdminState>(
+      listener: (context, state) {
+        if (state is AdminLoaded) {
+          // Assuming 'Loaded' means the list was refreshed after a successful add/update
+          Navigator.pop(context);
+        } else if (state is AdminError) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      child: AlertDialog(
+        title: Text(widget.group == null ? 'New Add-on Group' : 'Edit Add-on Group'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'Group Name (e.g. Size)'),
               ),
-            ),
-            TextButton.icon(icon: const Icon(Icons.add), label: const Text('Add Option'), onPressed: _addOption),
-          ],
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _minController,
+                      decoration: const InputDecoration(labelText: 'Min Select'),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _maxController,
+                      decoration: const InputDecoration(labelText: 'Max Select'),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text('Options', style: TextStyle(fontWeight: FontWeight.bold)),
+              ..._tempOptions.map(
+                (o) => ListTile(
+                  title: Text(o.name),
+                  trailing: Text(o.priceModifier > 0 ? '+${o.priceModifier}' : ''),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              TextButton.icon(icon: const Icon(Icons.add), label: const Text('Add Option'), onPressed: _addOption),
+            ],
+          ),
         ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              final newGroup = AddOnGroup(
+                id: widget.group?.id ?? '', // Ideally format empty for new, backend ignores or generates
+                name: _nameController.text,
+                minSelection: int.parse(_minController.text),
+                maxSelection: int.parse(_maxController.text),
+                options: List.from(_tempOptions),
+              );
+              if (widget.group != null && widget.group!.id.isNotEmpty) {
+                context.read<AdminBloc>().add(UpdateAddOnGroup(newGroup));
+              } else {
+                context.read<AdminBloc>().add(CreateAddOnGroup(newGroup));
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        ElevatedButton(
-          onPressed: () {
-            final newGroup = AddOnGroup(
-              id: widget.group?.id ?? '', // Ideally format empty for new, backend ignores or generates
-              name: _nameController.text,
-              minSelection: int.parse(_minController.text),
-              maxSelection: int.parse(_maxController.text),
-              options: List.from(_tempOptions),
-            );
-            context.read<AdminBloc>().add(CreateAddOnGroup(newGroup));
-            Navigator.pop(context);
-          },
-          child: const Text('Save'),
-        ),
-      ],
     );
   }
 

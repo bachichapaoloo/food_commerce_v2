@@ -11,20 +11,39 @@ class ProductModel extends ProductEntity {
     required super.imageUrl,
     required super.categoryId,
     super.addOnGroups,
+    super.isActive,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
       id: json['id'].toString(),
-      name: json['name'],
+      name: json['name'] ?? 'Unknown',
       description: json['description'] ?? '',
-      price: (json['price'] as num).toDouble(),
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
       imageUrl: json['image_url'] ?? '',
-      categoryId: json['category_id'],
-      addOnGroups: json['add_on_groups'] != null
-          ? (json['add_on_groups'] as List).map((i) => AddOnGroupModel.fromMap(i)).toList()
-          : [],
+      categoryId: json['category_id'] ?? 0,
+      addOnGroups: _parseAddOnGroups(json['product_addons']),
+      isActive: json['is_active'] ?? true,
     );
+  }
+
+  static List<AddOnGroupModel> _parseAddOnGroups(dynamic productAddons) {
+    if (productAddons == null || productAddons is! List) return [];
+    try {
+      return productAddons
+          .map((item) {
+            // item looks like { addon_groups: { ... } }
+            final groupData = item['addon_groups'];
+            if (groupData != null) {
+              return AddOnGroupModel.fromMap(groupData);
+            }
+            return null;
+          })
+          .whereType<AddOnGroupModel>()
+          .toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -38,6 +57,7 @@ class ProductModel extends ProductEntity {
       'add_on_groups': addOnGroups.map((group) {
         return (group is AddOnGroupModel) ? group.toMap() : _addOnGroupToMap(group);
       }).toList(),
+      'is_active': isActive,
     };
   }
 
@@ -63,12 +83,13 @@ class AddOnGroupModel extends AddOnGroup {
   });
 
   factory AddOnGroupModel.fromMap(Map<String, dynamic> map) {
+    final optionsList = map['options'] ?? map['addon_options'];
     return AddOnGroupModel(
-      id: map['id'],
+      id: map['id'].toString(), // Ensure string
       name: map['name'],
       minSelection: map['min_selection'] ?? 0,
       maxSelection: map['max_selection'] ?? 1,
-      options: map['options'] != null ? (map['options'] as List).map((x) => AddOnOptionModel.fromMap(x)).toList() : [],
+      options: optionsList != null ? (optionsList as List).map((x) => AddOnOptionModel.fromMap(x)).toList() : [],
     );
   }
 
@@ -78,7 +99,13 @@ class AddOnGroupModel extends AddOnGroup {
       'name': name,
       'min_selection': minSelection,
       'max_selection': maxSelection,
-      'options': options.map((x) => (x as AddOnOptionModel).toMap()).toList(),
+      'options': options.map((x) {
+        if (x is AddOnOptionModel) {
+          return x.toMap();
+        } else {
+          return {'id': x.id, 'name': x.name, 'price_modifier': x.priceModifier};
+        }
+      }).toList(),
     };
   }
 }

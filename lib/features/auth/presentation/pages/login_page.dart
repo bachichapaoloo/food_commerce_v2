@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:food_commerce_v2/core/widgets/toast_widget.dart';
-import 'package:food_commerce_v2/features/menu/presentation/pages/menu_page.dart';
-import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:food_commerce_v2/core/constants/constants.dart';
 import '../bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -46,8 +46,12 @@ class _LoginPageState extends State<LoginPage> {
               animationDuration: Duration(milliseconds: 500),
             );
           } else if (state is AuthAuthenticated) {
-            // Navigate to Home on success
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MainWrapperPage()));
+            // Navigate based on role
+            if (state.user.email == AppConstants.adminEmail) {
+              context.go('/admin');
+            } else {
+              context.go('/');
+            }
           }
         },
         builder: (context, state) {

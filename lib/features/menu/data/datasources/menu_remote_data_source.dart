@@ -25,7 +25,18 @@ class MenuRemoteDataSourceImpl implements MenuRemoteDataSource {
   @override
   Future<List<ProductModel>> getProducts({int? categoryId}) async {
     try {
-      var query = supabaseClient.from('products').select();
+      var query = supabaseClient
+          .from('products')
+          .select('''
+        *,
+        product_addons (
+          addon_groups (
+            *,
+            addon_options (*)
+          )
+        )
+      ''')
+          .eq('is_active', true);
 
       if (categoryId != null) {
         // Only fetch items for this category
