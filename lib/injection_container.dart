@@ -13,6 +13,10 @@ import 'package:food_commerce_v2/features/order/domain/repositories/order_reposi
 import 'package:food_commerce_v2/features/order/domain/usecases/get_orders.dart';
 import 'package:food_commerce_v2/features/order/domain/usecases/place_order.dart';
 import 'package:food_commerce_v2/features/order/presentation/bloc/order_bloc.dart';
+import 'package:food_commerce_v2/features/admin/presentation/bloc/admin_bloc.dart';
+import 'package:food_commerce_v2/features/admin/domain/repositories/admin_repository.dart';
+import 'package:food_commerce_v2/features/admin/data/repositories/admin_repository_impl.dart';
+import 'package:food_commerce_v2/features/admin/data/datasources/admin_remote_data_source.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -61,6 +65,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetOrders(sl()));
   sl.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<OrderRemoteDataSource>(() => OrderRemoteDataSourceImpl(supabaseClient: sl()));
+
+  // Feature - Admin
+  sl.registerFactory(() => AdminBloc(adminRepository: sl()));
+  sl.registerLazySingleton<AdminRepository>(() => AdminRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<AdminRemoteDataSource>(() => AdminRemoteDataSourceImpl(supabaseClient: sl()));
 
   // Repository and authentication
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl()));

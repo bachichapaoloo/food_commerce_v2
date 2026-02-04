@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 
 class OrderDetailModel {
   final int orderId;
-  final int productId;
+  final String productId;
   final String name;
   final double price;
   final int quantity;
@@ -25,7 +25,7 @@ class OrderDetailModel {
 
   OrderDetailModel copyWith({
     int? orderId,
-    int? productId,
+    String? productId,
     String? name,
     double? price,
     int? quantity,
@@ -61,7 +61,7 @@ class OrderDetailModel {
   factory OrderDetailModel.fromMap(Map<String, dynamic> map) {
     return OrderDetailModel(
       orderId: map['order_id'] as int, // snake_case from DB
-      productId: map['product_id'] as int, // snake_case from DB
+      productId: map['product_id'].toString(), // snake_case from DB
       name: map['name'] ?? '',
       price: (map['price_at_purchase'] as num).toDouble(), // DB column name
       quantity: map['qty'] as int, // or 'quantity' depending on your table
