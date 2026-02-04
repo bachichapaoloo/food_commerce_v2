@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_event.dart';
+import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_state.dart';
 import 'package:food_commerce_v2/features/menu/domain/enitities/product_entity.dart';
 import 'package:food_commerce_v2/features/menu/presentation/pages/product_details.dart';
 import '../bloc/menu_bloc.dart';

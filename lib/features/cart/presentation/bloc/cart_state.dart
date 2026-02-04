@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-part of 'cart_bloc.dart';
+import 'package:equatable/equatable.dart';
+import '../../domain/entities/cart_item.dart';
 
 enum CartStatus { initial, loading, success, error }
 

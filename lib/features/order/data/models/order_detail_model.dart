@@ -1,7 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:food_commerce_v2/features/menu/domain/enitities/add_on_option.dart';
+import 'package:food_commerce_v2/features/menu/data/models/product_model.dart';
 
 class OrderDetailModel {
   final int orderId;
@@ -10,7 +11,7 @@ class OrderDetailModel {
   final double price;
   final int quantity;
   final String specialInstructions;
-  final List<String> modifiers;
+  final List<AddOnOption> options; // Changed from List<String> modifiers
   final String status;
   OrderDetailModel({
     required this.orderId,
@@ -19,7 +20,7 @@ class OrderDetailModel {
     required this.price,
     required this.quantity,
     required this.specialInstructions,
-    required this.modifiers,
+    required this.options,
     required this.status,
   });
 
@@ -30,7 +31,7 @@ class OrderDetailModel {
     double? price,
     int? quantity,
     String? specialInstructions,
-    List<String>? modifiers,
+    List<AddOnOption>? options,
     String? status,
   }) {
     return OrderDetailModel(
@@ -40,7 +41,7 @@ class OrderDetailModel {
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
       specialInstructions: specialInstructions ?? this.specialInstructions,
-      modifiers: modifiers ?? this.modifiers,
+      options: options ?? this.options,
       status: status ?? this.status,
     );
   }
@@ -53,20 +54,20 @@ class OrderDetailModel {
       'price': price,
       'quantity': quantity,
       'specialInstructions': specialInstructions,
-      'modifiers': modifiers,
+      'options': options.map((x) => {'id': x.id, 'name': x.name, 'price_modifier': x.priceModifier}).toList(),
       'status': status,
     };
   }
 
   factory OrderDetailModel.fromMap(Map<String, dynamic> map) {
     return OrderDetailModel(
-      orderId: map['order_id'] as int, // snake_case from DB
-      productId: map['product_id'].toString(), // snake_case from DB
+      orderId: map['order_id'] as int,
+      productId: map['product_id'].toString(),
       name: map['name'] ?? '',
-      price: (map['price_at_purchase'] as num).toDouble(), // DB column name
-      quantity: map['qty'] as int, // or 'quantity' depending on your table
+      price: (map['price_at_purchase'] as num).toDouble(),
+      quantity: map['qty'] as int,
       specialInstructions: map['special_instructions'] ?? '',
-      modifiers: [],
+      options: map['options'] != null ? (map['options'] as List).map((x) => AddOnOptionModel.fromMap(x)).toList() : [],
       status: map['status'] ?? 'pending',
     );
   }

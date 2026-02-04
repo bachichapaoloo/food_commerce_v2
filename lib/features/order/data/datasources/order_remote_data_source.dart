@@ -48,6 +48,11 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
           'qty': item.quantity,
 
           'status': 'pending',
+
+          // Serialize addons to JSON
+          'options': item.selectedAddons
+              .map((e) => {'id': e.id, 'name': e.name, 'price_modifier': e.priceModifier})
+              .toList(),
         };
       }).toList();
 

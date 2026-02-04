@@ -1,4 +1,6 @@
-part of 'cart_bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:food_commerce_v2/features/menu/domain/enitities/product_entity.dart';
+import 'package:food_commerce_v2/features/menu/domain/enitities/add_on_option.dart';
 
 sealed class CartEvent extends Equatable {
   const CartEvent();
@@ -8,9 +10,10 @@ sealed class CartEvent extends Equatable {
 
 class AddItemToCart extends CartEvent {
   final ProductEntity product;
-  const AddItemToCart(this.product);
+  final List<AddOnOption> selectedAddons;
+  const AddItemToCart(this.product, {this.selectedAddons = const []});
   @override
-  List<Object> get props => [product];
+  List<Object> get props => [product, selectedAddons];
 }
 
 class CheckoutRequested extends CartEvent {

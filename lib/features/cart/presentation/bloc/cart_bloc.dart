@@ -1,10 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:food_commerce_v2/features/menu/domain/enitities/product_entity.dart';
+
 import '../../domain/entities/cart_item.dart';
 
-part 'cart_event.dart';
-part 'cart_state.dart';
+import 'cart_event.dart';
+import 'cart_state.dart';
 
 class CartBloc extends Bloc<CartEvent, CartState> {
   CartBloc() : super(const CartState()) {
@@ -17,8 +16,16 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   void _onAddItem(AddItemToCart event, Emitter<CartState> emit) {
     final currentItems = List<CartItemEntity>.from(state.items);
 
-    // Check if item already exists
-    final index = currentItems.indexWhere((item) => item.product.id == event.product.id);
+    // Check if item already exists (Matching ID and ADDONS)
+    final index = currentItems.indexWhere((item) {
+      if (item.product.id != event.product.id) return false;
+
+      if (item.selectedAddons.length != event.selectedAddons.length) return false;
+
+      final eventIds = event.selectedAddons.map((e) => e.id).toSet();
+      final itemIds = item.selectedAddons.map((e) => e.id).toSet();
+      return eventIds.containsAll(itemIds);
+    });
 
     if (index >= 0) {
       // Exists: Increment quantity
@@ -26,7 +33,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       currentItems[index] = existingItem.copyWith(quantity: existingItem.quantity + 1);
     } else {
       // New: Add to list
-      currentItems.add(CartItemEntity(product: event.product));
+      currentItems.add(CartItemEntity(product: event.product, selectedAddons: event.selectedAddons));
     }
 
     emit(CartState(items: currentItems));

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_commerce_v2/core/widgets/toast_widget.dart';
+import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_event.dart';
+import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_state.dart';
 import 'package:food_commerce_v2/features/navigation/main_wrapper_page.dart';
 import '../../../../injection_container.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -42,7 +44,6 @@ class _CartView extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     Navigator.of(ctx).pop(); // close dialog
-                    Navigator.of(context).pop(); // leave cart
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const MainWrapperPage()));
                   },
                   child: const Text("Awesome"),
@@ -53,7 +54,12 @@ class _CartView extends StatelessWidget {
         }
 
         if (state is OrderFailure) {
-          AppToast.error(context, title: "ERROR", message: state.message, animationDuration: Duration(milliseconds: 500));
+          AppToast.error(
+            context,
+            title: "ERROR",
+            message: state.message,
+            animationDuration: Duration(milliseconds: 500),
+          );
         }
       },
       child: Scaffold(
@@ -105,7 +111,12 @@ class _CartView extends StatelessWidget {
                         onDismissed: (direction) {
                           context.read<CartBloc>().add(RemoveItemCompletely(item.product));
 
-                          AppToast.success(context, title: "SUCCESS", message: "${item.product.name} removed", animationDuration: Duration(milliseconds: 500));
+                          AppToast.success(
+                            context,
+                            title: "SUCCESS",
+                            message: "${item.product.name} removed",
+                            animationDuration: Duration(milliseconds: 500),
+                          );
                         },
                         child: Card(
                           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

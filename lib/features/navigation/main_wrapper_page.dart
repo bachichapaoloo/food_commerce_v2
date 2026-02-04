@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_state.dart';
 import 'package:food_commerce_v2/features/home/presentation/home_landing_page.dart';
 import 'package:food_commerce_v2/features/menu/presentation/pages/menu_page.dart';
 import '../cart/presentation/bloc/cart_bloc.dart';
@@ -17,12 +18,7 @@ class _MainWrapperPageState extends State<MainWrapperPage> {
   int _currentIndex = 0;
 
   // The list of pages to switch between
-  final List<Widget> _pages = [
-    const HomeLandingPage(),
-    const MenuPage(), 
-    const CartPage(),
-    const ProfilePage(),
-  ];
+  final List<Widget> _pages = [const HomeLandingPage(), const MenuPage(), const CartPage(), const ProfilePage()];
 
   @override
   Widget build(BuildContext context) {

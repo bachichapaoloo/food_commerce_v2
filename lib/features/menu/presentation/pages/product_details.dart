@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_commerce_v2/features/cart/presentation/bloc/cart_event.dart';
 import '../../domain/enitities/product_entity.dart';
 import '../../data/models/product_model.dart';
 import '../../../cart/presentation/bloc/cart_bloc.dart';
@@ -347,15 +348,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           .id, // Keep ID for reference, though strictly this might merge cart items incorrectly if not handled. For V1 is ok.
       name: customizedName,
       description: _notesController.text.isNotEmpty ? "Note: ${_notesController.text}" : widget.product.description,
-      price: widget.product.price + additionalPrice,
+      // IMPORTANT: Use BASE price, because CartItemEntity adds the add-on price dynamically.
+      // If we add it here, it will be counted twice!
+      price: widget.product.price,
       imageUrl: widget.product.imageUrl,
       categoryId: widget.product.categoryId,
       addOnGroups: widget.product.addOnGroups, // Keep original structure
     );
 
+    List<AddOnOptionModel> allSelectedOptions = [];
+    _selectedOptions.forEach((key, options) {
+      allSelectedOptions.addAll(options);
+    });
+
     // We loop to support the quantity
     for (int i = 0; i < quantity; i++) {
-      context.read<CartBloc>().add(AddItemToCart(customizedProduct));
+      // Pass BOTH the customized product (for display name/price) AND the structured options (for DB)
+      context.read<CartBloc>().add(AddItemToCart(customizedProduct, selectedAddons: allSelectedOptions));
     }
 
     Navigator.pop(context);

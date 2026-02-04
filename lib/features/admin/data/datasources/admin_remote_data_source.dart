@@ -118,10 +118,17 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
       if (product.addOnGroups.isNotEmpty) {
         // Deduplicate groups to prevent PK violation within the batch
         final uniqueGroupIds = product.addOnGroups.map((g) => g.id).toSet();
-        Logger().i("AdminRemoteDataSource: Inserting new links for groups: $uniqueGroupIds");
+        Logger().i("AdminRemoteDataSource: Replacing links for groups: $uniqueGroupIds");
 
+        // 1. Delete existing links to ensure we don't duplicate or keep removed groups
+        await supabaseClient.from('product_addons').delete().eq('product_id', product.id);
+
+        // 2. Insert new links
         final links = uniqueGroupIds.map((gid) => {'product_id': product.id, 'addon_group_id': gid}).toList();
         await supabaseClient.from('product_addons').insert(links);
+      } else {
+        // If list is empty, we should still clear existing links
+        await supabaseClient.from('product_addons').delete().eq('product_id', product.id);
       }
       return unit;
     } catch (e) {
